@@ -315,14 +315,14 @@ def plot_genes(result_data,sz,figsize,marg='none',log=False,title=True,nosamp=Fa
             ax1[axis_location].set_xlim([-0.5,result_data.N[i_]-1.5])
     fig1.tight_layout(pad=0.02)
 
-def chisq_best_param_correction(result_data,method='nearest',Niter_=10,viz=True,szfig=(2,5),figsize=(10,3),overwrite=False):
+def chisq_best_param_correction(result_data,method='nearest',Niter_=10,viz=True,szfig=(2,5),figsize=(10,3),overwrite=False,EPS=1e-12):
     if viz:
         fig1,ax1=plt.subplots(nrows=szfig[0],ncols=szfig[1],figsize=figsize)
 
     divg_orig = result_data.divg
     best_params = np.zeros((Niter_,2))
     for i_ in range(Niter_):
-        (chisq,pval) = chisq_gen(result_data)
+        (chisq,pval) = chisq_gen(result_data,EPS=EPS)
         result_data.divg = np.sum(result_data.gene_spec_err[:,~result_data.gene_rej],1)
         result_data.find_best_params()
 
