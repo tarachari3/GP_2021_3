@@ -1,4 +1,3 @@
-
 import numpy as np
 import numpy.matlib
 import matplotlib.pyplot as plt
@@ -315,7 +314,7 @@ def plot_genes(result_data,sz,figsize,marg='none',log=False,title=True,nosamp=Fa
             ax1[axis_location].set_xlim([-0.5,result_data.N[i_]-1.5])
     fig1.tight_layout(pad=0.02)
 
-def chisq_best_param_correction(result_data,method='nearest',Niter_=10,viz=True,szfig=(2,5),figsize=(10,3),overwrite=False,EPS=1e-12):
+def chisq_best_param_correction(result_data,method='nearest',Niter_=10,viz=True,szfig=(2,5),figsize=(10,3),overwrite=False, EPS=1e-12):
     if viz:
         fig1,ax1=plt.subplots(nrows=szfig[0],ncols=szfig[1],figsize=figsize)
 
@@ -485,7 +484,7 @@ def import_vlm(filename,spliced_layer,unspliced_layer,gene_attr,cell_attr):
 
 def select_gene_set(loom_filepaths,feat_dict,viz=False,
                           results_to_exclude=[],seed=6,n_gen=10,
-                          filt_param=(0.01,0.01,350,350,4,4),aesthetics=((12,4),0.15,3,"Spectral"),
+                          filt_param=(0.01,0.01,350,350,4,4,1),aesthetics=((12,4),0.15,3,"Spectral"),
                             attr_names_in=['spliced','unspliced','Gene','CellID']):
     """
     Examines a set of .loom files and selects a set of genes. Inputs:
@@ -515,10 +514,11 @@ def select_gene_set(loom_filepaths,feat_dict,viz=False,
         #     attr_names = [spliced_layer,unspliced_layer,gene_attr,cell_attr]
         # else:
         #     attr_names = [spliced_layer[i_data],unspliced_layer[i_data],gene_attr[i_data],cell_attr[i_data]]
-        if all(isinstance(x, list) for x in attr_names_in):
+        # if all(isinstance(x, list) for x in attr_names_in):
+        if len(attr_names_in)>1:
             attr_names = attr_names_in[i_data]
         else:
-            attr_names = attr_names_in
+            attr_names = attr_names_in[0]
 
         S,U,gene_names,Ncells = import_vlm(loom_filepath,*attr_names)
         #check which genes are represented in the dataset
@@ -557,7 +557,10 @@ def select_gene_set(loom_filepaths,feat_dict,viz=False,
                 ax1[i].set_ylabel('log10 (mean '+var_name[i]+' + 0.001)')
         
         #plot genes in high-expression cluster
-        gene_filter = np.array(gene_cluster_labels,dtype=bool)
+        if int(filt_param[-1]) is not -1:
+            gene_filter = np.array(gene_cluster_labels,dtype=bool)
+        else:
+            gene_filter = np.ones(shape=gene_cluster_labels.shape,dtype=bool)
         if viz:
             fig2, ax2 = plt.subplots(nrows=1,ncols=2,figsize=sz)
             for i in range(2):
